@@ -13,8 +13,8 @@
 		- /images
 		- /uploads
 	 - /upload-cover
-- VHosts
-- Auth:
+- VHosts: -
+- Auth: -
 - Pwnd date:
 
 ---
@@ -22,18 +22,20 @@
 
 - [[Enum]] broke, ran basin enumeration on my own.
 - Found an email: submissions@tiempoarriba.htb
-- Following guided mode tasks (because I was very lost), I learnt about SSRF. /upload-cover takes a url as a parameter. I can do something with that.
+- Following guided mode tasks (because I was very lost, didn't know where to beggin)
+> Guided mode pointed me towards finding an enpoint that *can cause the server to generate an outbound HTTP request*
+- I learnt about SSRF with guided mode. /upload-cover takes a url as a parameter. I can do something with that.
 
 ---
 ## Exploitation  
 
-> A little explanation before continuing: Basically, when you upload an image to the /upload form (which is used for uploading books), it takes both a file or a URL. So in the URL, you can point to every place, even to `http://localhost`, which enables the following:
+> A little explanation before continuing: Basically, when you upload an image to the /upload-cover endpoint (which is used for uploading book covers), it can take both a file or a URL. So if you decide to POST a URL, you can point to every URL you want, even to `http://localhost`, which enables the following:
 
-- The server doesn't answer to `http://localhost` but it does to `http://localhost:8080` with a placeholder. Which means that running services time out (probably because the backend is expecting an image).
+- The server doesn't answer to `http://localhost` but it does to `http://localhost:8080` with a placeholder image. Since port 8080 (which doesn't run anything) just gives back a placeholder image, I can asume that running services time out (probably because the backend is expecting an image), while non open ports don't.
 
-- Since the server only hangs when accessing ports that are being used (such as port 80 when requesting only localhost), I'll try to probe it with a [probing script](./SSRFProbing.sh), to see if there's any service running in localhost (again, guided mode pointed me towards it). 
+- Since the server only hangs when accessing ports that are being used (such as port 80 when requested bya localhost), I'll try to probe it with a [probing script](./SSRFProbing.sh), to see if there's any service running in localhost (again, guided mode pointed me towards it). 
 
-- Okay. So. I got port 5000. It gives back the reponse (to the request made to localhost) as a binary file in the path the server answers when making the request, so I crafted a [script](./ServerEnumeration.sh) to automatize enum (since I need to download the file to get the answer). I'll enumerate this service.
+- Okay. So. I got port 5000. It gives back the reponse (to the request made to localhost) as a binary file. This file can be located in the path the main service answers when making the request, so I crafted a [script](./ServerEnumeration.sh) to automatize enum. I'll enumerate this localhost service.
 
 - Wow a lot happened in a short period of time. Better seen than explained:
   
@@ -61,7 +63,10 @@ path> /api/latest/metadata/messages/authors
 ---
 ## Attack chain
 
-- 
+- Exploit SSRF vulnerability in parameter "bookurl" in endpoint /upload_cover using POST method to probe for localhost services.
+- Enumerate service running on port 5000.
+- Get default credentials under url `http://localhost:5000/api/latest/metadata/messages/authors`
+- Get user flag.
 
 ---
 ## Notes  
