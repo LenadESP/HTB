@@ -22,6 +22,7 @@ All flags are optional. Whatever you don't pass, it'll ask for.
 | `-wv` | Absolute path to vhost wordlist | No |
 | `-wf` | Absolute path to file fuzzing wordlist (default: falls back to `-w1`) | No |
 | `-ext` | Comma-separated file extensions to fuzz (default: `php,html,js,txt,json,xml`) | No |
+| `-depth` | Max recursion depth (default: `0` = unlimited) | No |
 
 ## Output files
 
@@ -77,3 +78,5 @@ machine.htb
 - nmap and vhost fuzzing run in the background while endpoint fuzzing runs in the foreground.
 - Recursive fuzzing can take a long time on machines with deep endpoint trees. That's expected.
 - If `-wf` is not provided, file fuzzing falls back to `-w1`. It works but `raft-large-files.txt` is much better for finding actual files.
+- `-depth 2` is useful when a machine has a huge number of directories and you don't want to recurse forever. Default is unlimited.
+- All ffuf output is JSON internally for reliable parsing. You won't see raw ffuf output — results are shown via the live tree.

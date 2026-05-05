@@ -3,7 +3,7 @@
 # ============================================================================
 # HTB ENUM SCRIPT v2
 # Runs nmap + ffuf (endpoints recursive + vhosts + files) 
-# Usage: ./enum.sh [-i IP] [-d DOMAIN] [-n NAME] [-w1 WL1] [-w2 WL2] [-wv WV] [-wf WF] [-ext EXTENSIONS]
+# Usage: ./enum.sh [-i IP] [-d DOMAIN] [-n NAME] [-w1 WL1] [-w2 WL2] [-wv WV] [-wf WF] [-ext EXTENSIONS] [-depth N]
 # ============================================================================
 
 GREEN="\033[0;32m"
@@ -19,6 +19,7 @@ RESET="\033[0m"
 # ============================================================================
 
 DEFAULT_EXTENSIONS="php,html,js,txt,json,xml"
+DEFAULT_DEPTH=0  # 0 = unlimited
 
 # ============================================================================
 # PARSE FLAGS
@@ -33,12 +34,14 @@ while [ $# -gt 0 ]; do
         -w2)  WORDLIST2="$2";      shift 2 ;;
         -wv)  VHOST_WORDLIST="$2";  shift 2 ;;
         -wf)  FILE_WORDLIST="$2";   shift 2 ;;
-        -ext) EXTENSIONS="$2";      shift 2 ;;
+        -ext)   EXTENSIONS="$2";    shift 2 ;;
+        -depth) MAX_DEPTH="$2";     shift 2 ;;
         *)    printf "${RED}[-] Unknown flag: $1\n${RESET}"; exit 1 ;;
     esac
 done
 
 [ -z "$EXTENSIONS" ] && EXTENSIONS="$DEFAULT_EXTENSIONS"
+[ -z "$MAX_DEPTH" ]  && MAX_DEPTH="$DEFAULT_DEPTH"
 
 printf "\n"
 printf "${CYAN}============================================\n${RESET}"
@@ -135,13 +138,15 @@ parse_ffuf() {
 
 # ============================================================================
 # FUZZ A SINGLE PATH
-# Args: $1 = base path (e.g. "" or "/api"), $2 = depth
-# Prints new directory paths found (for recursion)
+# Args: $1 = base path (e.g. "" or "/api"), $2 = depth, $3 = output file for new dirs
+# All terminal output goes to stdout directly — nothing is captured via $()
+# New directories are written to $3, one per line
 # ============================================================================
 
 fuzz_path() {
     local base="$1"
     local depth="$2"
+    local outfile="$3"
     local url="http://${DOMAIN}${base}/FUZZ"
     local tmpfile1 tmpfile2 tmpfile_files
     tmpfile1=$(mktemp /tmp/ffuf_XXXXXX.json)
@@ -169,7 +174,7 @@ fuzz_path() {
              -s 2>/dev/null
     fi
 
-    # File fuzzing with extensions — uses dedicated file wordlist if provided, falls back to WORDLIST1
+    # File fuzzing — dedicated wordlist or fallback to WORDLIST1
     local file_wl="${FILE_WORDLIST:-$WORDLIST1}"
     local ext_formatted
     ext_formatted=".$(echo "$EXTENSIONS" | sed 's/,/,./g')"
@@ -181,7 +186,7 @@ fuzz_path() {
          -o "$tmpfile_files" \
          -s 2>/dev/null
 
-    # Collect, deduplicate, filter already seen
+    # Collect and deduplicate
     local all_found
     all_found=$(
         { parse_ffuf "$tmpfile1"; parse_ffuf "$tmpfile2"; parse_ffuf "$tmpfile_files"; } \
@@ -191,40 +196,34 @@ fuzz_path() {
     rm -f "$tmpfile1" "$tmpfile2" "$tmpfile_files"
 
     local count=0
-    local new_dirs=""
 
     while IFS= read -r p; do
         [ -z "$p" ] && continue
-        # Build full path key for dedup
         local full="${base}${p}"
         if [ -z "${DISCOVERED[$full]+x}" ]; then
             DISCOVERED[$full]=1
             count=$(( count + 1 ))
-            # Write to tree using just the segment relative to base
             add_to_tree "$p" "$depth"
-            # Only queue directories (no file extension) for recursion
+            # Write new directories to outfile for recursion (no subshell capture)
             if [[ "$p" != *.* ]]; then
-                new_dirs="${new_dirs}${p}"$'\n'
+                printf "%s\n" "$p" >> "$outfile"
             fi
         fi
     done <<< "$all_found"
 
     printf "${GREEN}[+] Done: %s — %d new result(s)\n${RESET}" "$display_base" "$count"
 
-    # Print tree so far in real time
+    # Print live tree
     printf "\n"
     printf "${BLUE}--- Tree so far ---\n${RESET}"
     cat "$TREE_FILE"
     printf "${BLUE}-------------------\n${RESET}"
     printf "\n"
-
-    # Output new dirs for caller to queue
-    printf "%s" "$new_dirs"
 }
 
 # ============================================================================
 # RECURSIVE ENDPOINT FUZZER
-# BFS layer by layer
+# BFS layer by layer — fuzz_path writes new dirs to a temp file (no subshell)
 # ============================================================================
 
 recursive_fuzz() {
@@ -232,6 +231,13 @@ recursive_fuzz() {
     local depth=1
 
     while [ ${#queue[@]} -gt 0 ]; do
+
+        # Depth limit check
+        if [ "$MAX_DEPTH" -gt 0 ] && [ "$depth" -gt "$MAX_DEPTH" ]; then
+            printf "${YELLOW}[*] Depth limit (%d) reached. Stopping recursion.\n${RESET}" "$MAX_DEPTH"
+            break
+        fi
+
         local -a next_queue=()
 
         printf "\n"
@@ -239,11 +245,17 @@ recursive_fuzz() {
                "$depth" "${#queue[@]}"
 
         for base in "${queue[@]}"; do
-            local new_paths
-            new_paths=$(fuzz_path "$base" "$(( depth - 1 ))")
+            # Temp file to collect new dirs — avoids subshell stdout capture
+            local dirfile
+            dirfile=$(mktemp /tmp/enum_dirs_XXXXXX)
+
+            fuzz_path "$base" "$(( depth - 1 ))" "$dirfile"
+
             while IFS= read -r p; do
                 [ -n "$p" ] && next_queue+=("${base}/${p#/}")
-            done <<< "$new_paths"
+            done < "$dirfile"
+
+            rm -f "$dirfile"
         done
 
         if [ ${#next_queue[@]} -gt 0 ]; then
