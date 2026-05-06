@@ -35,7 +35,7 @@ Got user flag. Starting PrivEsc
 ---
 ## PrivEsc
 
-- Followed basic [[Privilege Escalation - Common Library#Generic|generic privesc]]
+- Followed basic [[Privilege Escalation - Common Library#Enumeration|PrivEsc enumeration]]
 - Found that the user "oliver" is inside group oliver and netdata
 
 > Ok I will explain everything a little bit. Basically, I found a some files with capacities and found a SUID binary I had ignored before. I could execute them, with the group "netdata". 

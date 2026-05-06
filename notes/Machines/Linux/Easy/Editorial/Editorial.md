@@ -15,7 +15,7 @@
 	 - /upload-cover
 - VHosts: -
 - Auth: -
-- Pwnd date:
+- Pwnd date: 06/05/2026
 
 ---
 ## Enumeration  
@@ -110,12 +110,10 @@ r.clone_from(url_to_clone, 'new_changes', multi_options=["-c protocol.ext.allow=
 > 	   
 > Another matter is the fact that I had to use a script that chmodded /bin/bash because git didn't seem to be able to resolve it directly, so I passed a script as an argument.
 
-
 - Got root flag.
 
 ---
 ## Rabbit holes
-
  - None (surprisingly)
 ---
 ## Attack chain
@@ -138,4 +136,4 @@ r.clone_from(url_to_clone, 'new_changes', multi_options=["-c protocol.ext.allow=
 ---
 ## Learnt:
 - [[SSRF (Server-Side Request Forgery)]] exploits
-- Git Protocol Vulnerability
+- Git Protocol Vulnerability explained in [[Privilege Escalation - Common Library#Git ext abuse |Git ext abuse]]

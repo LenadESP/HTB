@@ -12,24 +12,34 @@
 
 ---
 ## Enumeration  
+
 - 
 ---
 ## Exploitation  
+
 -  
 
 ---
 ## PrivEsc
+
 -  
 
 ---
 ## Rabbit holes
+
  - 
 
 ---
 ## Attack chain
 
+- 
 
+---
+## Learnt
 
+- 
 ---
 ## Notes  
 - Machine rating:
+  
+  
