@@ -38,7 +38,8 @@ Got user flag. Starting PrivEsc
 - Followed basic [[Privilege Escalation - Common Library#Generic|generic privesc]]
 - Found that the user "oliver" is inside group oliver and netdata
 
-Ok I will explain everything a little bit. Basically, I found a some files with capacities and found a SUID binary I had ignored before. I could execute them, bya the group "netdata". I searched known attack vectors, and found that if you can change PATH, you can make that binary execute the file you want (it executes different plugins that it looks up in the path). We tried with an sh script, didn't work. With a compiled binary, also didn't. In the end, I looked up the writeup, and found that in C, if you want to keep the group, you need to do `setuid()` and `setgid()` respectively. 
+> Ok I will explain everything a little bit. Basically, I found a some files with capacities and found a SUID binary I had ignored before. I could execute them, with the group "netdata". 
+> I searched known attack vectors, and found that if you can change PATH, you can make that binary execute the file you want (it executes different plugins that it looks up in the path). We tried with an sh script, didn't work. With a compiled binary, also didn't. In the end, I looked up the writeup, and found that in C, if you want to keep the group, you need to do `setuid()` and `setgid()` respectively. 
 
 This is recognized as [[CVE-2024-32019]].
 
@@ -55,7 +56,7 @@ int main() {
 }
 ```
 
->Note: replacing or copying /bin/bash didn't work, even when the file was SUID and owned by root (but still executable and writable by me, oliver). Spawning a shell did. Whatever. Kinda weird PrivEsc tbh.
+>Note: replacing or copying /bin/bash didn't work, even when the file was SUID and owned by root (but still executable and writable by me, oliver). Spawning a shell did. Whatever. Kinda a weird PrivEsc tbh.
 
 ---
 ## Rabbit holes
