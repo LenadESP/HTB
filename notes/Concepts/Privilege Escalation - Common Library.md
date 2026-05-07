@@ -46,11 +46,11 @@ Finds regular files writable by the current user, excluding `/proc` and `/sys` (
 
 ### What is (in) the system? Who else is in the system?
 
-|Command|Description|
-|---|---|
-|`uname -a`|Prints system information: kernel version, architecture (x86/x64/ARM)|
-|`cat /etc/os-release`|Distribution name and version (Ubuntu, Debian, etc.)|
-|`ls -la /home/`|Lists all folders (and thus users) in /home. `-l` = long listing (perms etc), `-a` = all|
+| Command               | Description                                                                              |
+| --------------------- | ---------------------------------------------------------------------------------------- |
+| `uname -a`            | Prints system information: kernel version, architecture (x86/x64/ARM)                    |
+| `cat /etc/os-release` | Distribution name and version (Ubuntu, Debian, etc.)                                     |
+| `ls -la /home/`       | Lists all folders (and thus users) in /home. `-l` = long listing (perms etc), `-a` = all |
 
 **Users with a shell:**
 
