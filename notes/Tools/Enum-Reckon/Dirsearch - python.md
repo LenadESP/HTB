@@ -58,7 +58,7 @@ python3 dirsearch.py -u http://target.htb -w /path/to/wordlist.txt -e php,html
 **With SecLists wordlist (needs -f):**
 
 ```bash
-python3 dirsearch.py -u http://target.htb -w /usr/share/seclists/Discovery/Web-Content/common.txt -f -e php,html,js
+python3 dirsearch.py -u http://target.htb -w /usr/share/seclists/Discovery/Web-Content/raft-large-words.txt -f -e php,html,js
 ```
 
 **Recursive:**
