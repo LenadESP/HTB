@@ -129,10 +129,10 @@ curl -X PUT \
 - Enumerate page, and exploit Path Traversal in Grafana to get reused MySQL credentials in path `/etc/grafana/provisioning/datasources/mysql.yaml`.
 - Retrieve credentials from online MySQL DB on port 3306 to get access to user *developer* on [[SSH (Secure Shell)|SSH]]
 - Get user flag.
-- Find service *Consule* running on localhost and read configs located in `/etc/consul.d/`. 
+- Find service *Consul* running on localhost and read configs located in `/etc/consul.d/`. 
 - As you read the config, acl is active so you need an auth token
 - Find the git project "my-app" located in /opt/my-app, read logs and check last commits, where the token is stored in plain sight.
-- Use the API of Consule with the token retrieved from the commit history to create a new "service" that executes `chmod +s /bin/bash` as health checks, which effectively make /bin/bash SUID and let's you run `/bin/bash -p`, becoming root.
+- Use the API of Consul with the token retrieved from the commit history to create a new "service" that executes `chmod +s /bin/bash` as health checks, which effectively make /bin/bash SUID and let's you run `/bin/bash -p`, becoming root.
 - Get root flag.
 
 ---
