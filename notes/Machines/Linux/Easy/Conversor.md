@@ -21,7 +21,7 @@
 ## Enumeration  
 
 - After running basic scans (nmap, fuzzing and vhost fuzzing), accessed the main page and found a conversor, that takes an XML file and a XSLT file, which gives a theme to the XML file. I'll try XXE.
-- Oh. Ok. So they just gave me the source code for the application. Cool. So, I asked Claude Code (I am NOT reading python. I'd rather die) to tell me incorrect assumptions in this whole application. Well... lol. File uploading through XSTL injection that can lead to RCE, and ultimatelly, to a reverse shell. Give me a second, and I'll explain.
+- Oh. Ok. So they just gave me the source code for the application. Cool. So, I asked Claude Code (I am NOT reading python. I'd rather die) to tell me incorrect assumptions in this whole application. Well... lol. File uploading through XSTL injection that can lead to RCE, and ultimately, to a reverse shell. Give me a second, and I'll explain.
 
 ---
 ## Exploitation  
@@ -61,14 +61,14 @@ If you want to run Python scripts (for example, our server deletes all files old
 ## PrivEsc
 
 -  Well. Ran basic enumeration following the path described in [[Privilege Escalation - Common Library#Who am I? What permissions do I have?|PrivEsc]], and after running 
-`sudo -l`, I got back this interesting SUID binary.
+`sudo -l`, I got back this interesting sudo-able binary (binaries that can be run as sudo).
 
 ```
 User fismathack may run the following commands on conversor:
     (ALL : ALL) NOPASSWD: /usr/sbin/needrestart
 ```
 
-- After searching up on [GTFObins](https://gtfobins.org/gtfobins/needrestart/) that binary, I came across the folloing exploit:
+- After searching up on [GTFObins](https://gtfobins.org/gtfobins/needrestart/) that binary, I came across the following exploit:
 
 ```bash
 echo '...' >/path/to/temp-file
@@ -93,7 +93,7 @@ root
 ---
 ## Rabbit holes
 
- - Trying XXE and XSLT Injection without checking if I could retrieve the source code (since the browser gave me an error, I thought it was unavaiable. It was not. I just had to `wget` it).
+ - Trying XXE and XSLT Injection without checking if I could retrieve the source code (since the browser gave me an error, I thought it was unavailable. It was not. I just had to `wget` it).
 
 ---
 ## Attack chain
