@@ -8,6 +8,14 @@ Automates the initial enumeration phase for HTB machines. Runs nmap and vhost fu
   -wv /usr/share/wordlists/seclists/Discovery/Web-Content/raft-large-words.txt \
   -wf /usr/share/wordlists/seclists/Discovery/Web-Content/raft-large-files.txt
 ```
+###### Kali
+
+``` bash
+/tools/Enum.sh \
+  -w1 /wordlists/SecLists/Discovery/Web-Content/raft-large-words.txt \
+  -wv /wordlists/SecLists/Discovery/Web-Content/raft-large-words.txt \
+  -wf /wordlists/SecLists/Discovery/Web-Content/raft-large-files.txt
+```
 ## Usage
 
 ```bash

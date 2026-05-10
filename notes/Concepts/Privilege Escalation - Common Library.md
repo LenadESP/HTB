@@ -25,12 +25,13 @@ This is a PrivEsc common library, that gathers all generic techniques (and not s
 
 ### Who am I? What permissions do I have?
 
-|Command|Description|
-|---|---|
-|`whoami`|Prints your current username|
-|`id`|Shows user ID (uid), group ID (gid), and all the groups you're in|
-|`sudo -l`|What can I run as sudo?|
-|`env`|Shows environment variables — look for credentials, paths, tokens|
+| Command   | Description                                                       |
+| --------- | ----------------------------------------------------------------- |
+| `whoami`  | Prints your current username                                      |
+| `id`      | Shows user ID (uid), group ID (gid), and all the groups you're in |
+| `sudo -l` | What can I run as sudo?                                           |
+| `env`     | Shows environment variables — look for credentials, paths, tokens |
+| `groups`  | Shows all groups the current user belongs to.                     |
 
 **Writable files hunt:**
 
