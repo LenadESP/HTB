@@ -1,2 +1,5 @@
 notes/.obsidian/
 *.bak
+.obsidian
+SecLists/
+dirsearch/
