@@ -102,7 +102,7 @@ root
 - Wait from Cron job to execute it.
 - Retrieve DB from the page, and crack the hash for user `fismathack`, that gave me access to SSH.
 - Get user flag.
-- Exploit SUID binary needrestart by forcing it to make `/bin/bash` SUID.
+- Exploit sudo able binary needrestart by forcing it to make `/bin/bash` SUID (described in the [[Conversor#PrivEsc|PrivEsc]] section.
 - Execute SUID `/bin/bash` with flag -p to keep root.
 - Get root flag.
 
