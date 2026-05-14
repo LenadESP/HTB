@@ -1,1 +1,1 @@
-write for tools https://github.com/swisskyrepo/PayloadsAllTheThings/tree/master and https://github.com/maurosoria/dirsearch to start using them. learn git forensics and git basics,
+Write MySQL typical commands. Learn git forensics and git basics.

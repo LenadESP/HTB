@@ -75,8 +75,17 @@ Useful for spotting freshly written scripts, configs, or credentials — e.g. a 
 - `-type f` = regular files only, `-mmin -10` = modified less than 10 minutes ago, `2>/dev/null` = hide errors, `| grep -v proc | grep -v sys` = pipe the results and exclude `/proc` and `/sys` (virtual filesystems that would flood the output with noise)
 
 ---
-
 ### What is listening? What is running?
+
+**Checking processes visibility**
+
+If `hidepid=2` is set on `/proc`, you can only see your own processes — other users' processes are hidden. Check with:
+
+```bash
+cat /proc/mounts | grep proc
+```
+
+If you see `hidepid=2`, don't trust `ps` — enumerate local ports with `ss -tlnp` and curl them to find services regardless of who owns them.
 
 **Running processes:**
 
