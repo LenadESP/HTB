@@ -5,8 +5,8 @@
 
 - OS: Linux
 - Open ports: 22, 80
-- Local hosts: 3556, 8000
-- Running services: Nginx:80(1.14.0), SSH:22 (7.6p1), Strappi (3.0.0-beta.17.4), Laravel (<8.4.2)
+- Local ports: 3556, 8000
+- Running services: Nginx:80(1.14.0), SSH:22 (7.6p1), Strappi (3.0.0-beta.17.4), Laravel:8000(<8.4.2)
 - Endpoints:
     - /js
     - /css
