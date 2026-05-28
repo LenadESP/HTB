@@ -1,10 +1,5 @@
 # HTB - Expressaway
 
-#machine #linux #easy
-#tech/
-#vuln/
-#technique/
-
 ---
 ## General Info
 - OS: Linux
