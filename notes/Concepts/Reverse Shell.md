@@ -47,5 +47,5 @@ Then:
 ```bash
 export TERM=xterm
 # Ctrl+Z
-stty raw -echo; fg
+stty raw -echo; stty rows 50 columns 200; fg
 ```
