@@ -15,6 +15,7 @@
 
 - Ran nmap and endpoint discovery. (It doesn't redirect to a hostname so I omitted VHost discovery)
 - Went to the main page and saw that it takes a URL, requests it, and if it is up then prints the HTML, if it's not, then it prints "It is down :(". This smells a lot to [[SSRF (Server-Side Request Forgery)]], so I'll craft a script to probe against all ports in localhost (it does answer when localhost requested, so I'm guessing there's no sanitization).
+- Interesting to mention that opening a server with Python does NOT show the whole request but opening it with NetCat does, which gave me Curl's version.
   
 ---
 ## Exploitation  
