@@ -80,7 +80,7 @@ uals -u opc.tcp://localhost:4840/helix/ -n "ns=2;i=1" -l 4
 
 ### PDF cracking pops
 
-- About 5 minutes in, john cracked the PDF. The password was weak enough to be in rockyou despite the PDF using R6/AES-256 (which is normally slow as hell to crack). See [[Hash Cracking#PDF]] for command reference.
+- About 5 minutes in, john cracked the PDF. The password was weak enough to be in rockyou despite the PDF using R6/AES-256 (which is normally slow as hell to crack). See [[Hash cracking#PDF]] for command reference.
 - The PDF is the **operator's manual** for the reactor system. The box just handed me the entire spec sheet. Key takeaways:
     - `Temperature` = `TemperatureRaw` + `CalibrationOffset` (i.e. the offset just fakes the temp reading)
     - Trip thresholds: Temp ≥ 305°C OR Pressure ≥ 75 bar
@@ -238,7 +238,7 @@ root
 ## Learnt
 
 - **OPC UA / ICS basics**: It's a protocol used in real industrial environments (factories, power plants, water treatment). Servers expose a tree of nodes (variables); clients browse/read/write them. NodeIds look like `ns=2;i=5`. Common misconfigs: Security Mode "None" + anonymous auth allowed = full control with no creds. Default port 4840. CLI tools: `uadiscover`, `uals`, `uaread`, `uawrite`. See [[OPC UA]].
-- **PDF password cracking**: Use `pdf2john` to extract a john-format hash, then crack with john or hashcat (mode 10500 for R3/R4, 10700 for R6/AES-256). R6 is slow as hell, so wordlist attacks only. See [[Hash Cracking#PDF]].
+- **PDF password cracking**: Use `pdf2john` to extract a john-format hash, then crack with john or hashcat (mode 10500 for R3/R4, 10700 for R6/AES-256). R6 is slow as hell, so wordlist attacks only. See [[Hash cracking#PDF]].
 - **Reading sudo scripts before running them**: This whole privesc was solved by `cat`-ing the script and understanding its gate condition. Always read sudo binaries/scripts if they're readable.
 - **The cost of confirmation bias on no sleep**: When tired, the brain hallucinates evidence to support whatever theory it's already attached to. Step away, sleep, come back.
 - **Take breaks**: 4-day break before tackling OPC UA was the best decision of this entire box.

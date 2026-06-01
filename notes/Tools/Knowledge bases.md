@@ -2,7 +2,7 @@ A living index of external references, repos, and tools I use throughout my HTB 
 
 ---
 ## Table of Contents
-- [[Knowledge Bases#PayloadsAllTheThings|PayloadsAllTheThings]]: Payload reference for common vuln types
+- [[Knowledge bases#PayloadsAllTheThings|PayloadsAllTheThings]]: Payload reference for common vuln types
 
 ---
 ## PayloadsAllTheThings
