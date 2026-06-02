@@ -10,7 +10,6 @@ Everything HTB-related in one place — notes, tools, and my Kali Docker setup.
 |---|---|
 | `notes/` | Obsidian vault — machine writeups, concepts, CVEs |
 | `tools/` | Automation scripts for repetitive tasks |
-| `kali/` | My Kali Docker setup |
 
 ---
 
