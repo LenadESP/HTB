@@ -30,7 +30,7 @@ OFFLINE
 ## Enumeration  
 
 -  Ran nmap, and ffuf, but found nothing. 
--  Found, amongst all JS files, NextJS's version, which is compatible with the famous [[R2S CVE-2025-55182]], which, as the name indicates, gives you a shell. I found a public [[Metasploit]] module, so I'll try that.
+-  Found, amongst all JS files, NextJS's version, which is compatible with the famous [[CVE-2025-55182 (R2S)]], which, as the name indicates, gives you a shell. I found a public [[Metasploit]] module, so I'll try that.
   
 ---
 ## Exploitation  
@@ -70,7 +70,7 @@ root 1395 0.0 1.1 1066840 46964 ? Ssl 12:32 0:00 /usr/bin/node --inspect=127.0.0
 ## Attack chain
 
 - Read the main page's JS to find NextJS version.
-- Exploit [[R2S CVE-2025-55182]] to get foothold as user *node*.
+- Exploit [[CVE-2025-55182 (R2S)]] to get foothold as user *node*.
 - Find file worker.js running as root with flag --inspect.
 - Exploit the debug JS shell to get a shell as root, as indicated in [[Privilege Escalation - Common Library#Node.js --inspect debugger abuse|Node.js --inspect debugger abuse]]
 - Get user flag
