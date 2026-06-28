@@ -3,8 +3,8 @@
 ---
 ## General Info
 - OS: Linux
-- Open ports:
-- Running services:
+- Open ports: 22
+- Running services: OpenSSH:22(10.0p2)
 - Endpoints:
 - VHosts: 
 - Auth:

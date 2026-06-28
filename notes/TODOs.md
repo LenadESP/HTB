@@ -4,4 +4,4 @@ MUST WRITES:
 [[SMB]], [[MS17-010 (EternalBlue)]], [[DirtyFrag]], [[CVE-2026-27944]]
 
 Machines:
-[[Expressaway]]
+[[Expressaway]], [[CodePart]]

