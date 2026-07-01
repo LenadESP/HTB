@@ -42,11 +42,9 @@ Once you get a shell, upgrade it:
 ```bash
 python3 -c 'import pty; pty.spawn("/bin/bash")'
 python -c 'import pty; pty.spawn("/bin/bash")'
-```
 
-Then:
-```bash
 export TERM=xterm
 # Ctrl+Z
-stty raw -echo; stty rows 50 columns 200; fg
+stty raw -echo; fg
+stty rows 50 columns 200
 ```
