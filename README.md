@@ -16,7 +16,7 @@ Everything HTB-related in one place — notes, tools, and my Kali Docker setup.
 ## ⚙️ Setup
 
 ```bash
-git clone https://github.com/yourusername/HTB.git
+git clone https://github.com/LenadESP/HTB.git
 cd HTB
 chmod +x tools/**/*.sh
 ```
