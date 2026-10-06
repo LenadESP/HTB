@@ -8,7 +8,7 @@
 - Endpoints: -
 - VHosts: flow.fireflow.htb
 - Auth: -
-- Pwnd date:
+- Pwnd date: 06/10/2026
 
 ---
 ## Enumeration  
@@ -111,27 +111,68 @@ This being the token, this is the plaintext token:
   },
   "sub": "system:serviceaccount:default:mcp-sa"
 }
+
 ```
 
 - Basically, I'm *mcp-sa* in *default*. Let's see what permissions I have.
-- 
+
+```json
+{
+  "kind": "SelfSubjectRulesReview",
+  "apiVersion": "authorization.k8s.io/v1",
+  "metadata": {},
+  "spec": {},
+  "status": {
+    "resourceRules": [
+      {
+        "verbs": [
+          "get"
+        ],
+        "apiGroups": [
+          ""
+        ],
+        "resources": [
+          "nodes/proxy"
+        ]
+      }
+```
+
+- Ok, I've omitted the default health and all of those shitty APIs that I don't care about, this permission is the most and only interesting one. What it let's me is basically talk with Kubelet, that's basically the one that manages all pods. That's very, very interesting. Let's see what I can do with kubelet.
+- Okay. So I requested the /pods endpoint, that let's me see which pods exist, and holy. The 4th one is literally screaming to be rooted lol. To summarize:
+
+> holy. fuck.
+
+- Ok. So. Where do I begin. Umm the thing is, this pod could mount and bind / on /host/root. Basically mount the whole filesystem. But getting to execute code on that pod was... messy as mother fucking fuck. Take in account that I had an RCE primitive on a mcp server that talked with Kubelet than then talked with the pod. So, to summarize, I read a writeup to see what the implementation of talking with the pod was. Why? Because I did not have permissions to POST on /run. But I did have permissions to do connect to websockets. The /exec endpoint in Kubelet let's you execute commands on pods, but using websockets, and I was both too tired and too bad at python to even attempt writting a script there. So I just stole the writeup's implementation to talk to the websocket, wrapped it in base64 as a script, and made my primitive then execute it on the pod, and I got RCE on the pod.
+- Got root flag.
 
 ---
 ## Rabbit holes
 
- - 
+ -  Too many to even remember.
 
 ---
 ## Attack chain
 
-- 
+- Exploit CVE-2026-33017 (Langflow 1.8.2 RCE) with a flow id; host a bash script and curl-pipe it -> foothold as `www-data`. 
+- -Read `env` -> `LANGFLOW_SUPERUSER_PASSWORD` reused as `nightfall:n1ghtm4r3_b4_n1ghtf4ll`. 
+- Log in as `nightfall` (reused creds). Get user flag. 
+- Read `~/.mcp/config.json` -> MCP Tool Registry creds `langflow-bot:Langfl0w@mcp2026!`. 
+- Auth to MCP API, forge an `admin` JWT with `alg:none` (unsigned). 
+- Abuse admin tool-registration (`code` field) -> blind RCE in the `mcp-server` pod as `mcp-sa`. 
+- Steal pod SA token from `/var/run/secrets/kubernetes.io/serviceaccount/token`. 
+- SelfSubjectRulesReview -> only `get` on `nodes/proxy`. 
+- GET `nodes/fireflow/proxy/pods` -> spot `node-exporter`: privileged, runAsUser 0, hostPath `/` at `/host/root`. 
+- No POST to kubelet `/run`, but `/exec` reachable direct on `:10250` via `v4.channel.k8s.io` websocket with the SA token. 
+- Base64 a websocket-exec script, stage to `/tmp` via the MCP primitive, run as root in node-exporter. 
+- `cat /host/root/root/root.txt` via the host bind mount. Get root flag.
 
 ---
 ## Learnt
 
-- 
+- Too much. Like. The whole Kubernetes stack lol.
+  
 ---
 ## Notes  
-- Machine rating:
+- Machine rating: Hard as FUCK.
   
   
