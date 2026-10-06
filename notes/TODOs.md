@@ -1,4 +1,7 @@
 Write MySQL typical commands. Learn git forensics and git basics.
 
 Machines:
-[[Expressaway]], [[CodePart]], [[Fireflow]], [[MakeSense]], [[Paperwork]]
+[[Fireflow]], [[MakeSense]], [[Paperwork]], [[Connected]], [[Bedside]], [[MakeSense]]
+
+
+[[CVE-2026-33017]]
