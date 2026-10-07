@@ -9,7 +9,7 @@ Built by a self-taught 16 y/o on his HTB grind. Nothing fancy. Just scripts that
 ## ⚙️ Setup
 
 ```bash
-git clone https://github.com/yourusername/htb-tools.git
+git clone https://github.com/LenadESP/htb-tools.git
 cd htb-tools
 chmod +x **/*.sh
 ```
